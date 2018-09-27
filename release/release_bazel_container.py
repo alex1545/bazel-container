@@ -15,6 +15,8 @@ BAZEL_SHA_MAP_FILE = os.path.join(GIT_ROOT, "container/common/bazel/version.bzl"
 
 BAZEL_GCS_PATH = "gs://bazel/"
 
+BAZEL_CONTAINER_RELEASE_BRANCH = "bazel-container-release"
+
 def main():
   # print versions_and_shas.CURR_VERSIONS_AND_SHAS["bazel"]["version"]
   # print versions_and_shas.CURR_VERSIONS_AND_SHAS["bazel"]["sha"]
@@ -39,10 +41,23 @@ def main():
     print("Bazel version: " + curr_bazel_version + " -> " + latest_bazel_version)
     print("Bazel installer sha: " + curr_bazel_sha + " -> " + latest_bazel_sha)
 
+    # create the right branch locally first
+    # - git checkout -b branchName
+
     # make code changes in container/common/bazel/version.bzl (add new version to sha mapping)
     # the code change relies on the line number where to insert code
     latest_bazel_version_to_sha_mapping = '    "' + latest_bazel_version + '": "' + latest_bazel_sha + '",\n'
     insert_line_to_file(GIT_ROOT + "/container/common/bazel/version.bzl", latest_bazel_version_to_sha_mapping, -1)
+
+    # push changes to designated branch on GitHub (using local credentials)
+    # - git add GIT_ROOT + "/container/common/bazel/version.bzl"
+    # - git commit -m "Bazel update. Version: old -> new; Installer sha256: old -> new"
+    # - git push origin branchName
+    # - git branch -d branchName
+
+    # create PR (add alex1545 as reviewer)
+
+
 
   # if different, make code changes and push to GitHub (Louhi will continue from there)
 
