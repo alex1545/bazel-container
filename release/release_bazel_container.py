@@ -42,7 +42,7 @@ def main():
     print("Bazel installer sha: " + curr_bazel_sha + " -> " + latest_bazel_sha)
 
     # create the right branch locally first
-    # - git checkout -b branchName
+    subprocess.check_call(["git", "checkout", "-b", BAZEL_CONTAINER_RELEASE_BRANCH])
 
     # make code changes in container/common/bazel/version.bzl (add new version to sha mapping)
     # the code change relies on the line number where to insert code
@@ -50,12 +50,16 @@ def main():
     insert_line_to_file(GIT_ROOT + "/container/common/bazel/version.bzl", latest_bazel_version_to_sha_mapping, -1)
 
     # push changes to designated branch on GitHub (using local credentials)
-    # - git add GIT_ROOT + "/container/common/bazel/version.bzl"
-    # - git commit -m "Bazel update. Version: old -> new; Installer sha256: old -> new"
-    # - git push origin branchName
-    # - git branch -d branchName
+    subprocess.check_call(["git", "add", GIT_ROOT + "/container/common/bazel/version.bzl"])
 
-    # create PR (add alex1545 as reviewer)
+    commit_msg = "Bazel version update. Version: " + curr_bazel_version + " -> " + latest_bazel_version + "; Installer sha256: " + curr_bazel_sha + " -> " + latest_bazel_sha
+    subprocess.check_call(["git", "commit", "-m", commit_msg])
+
+    subprocess.check_call(["git", "push", "origin", BAZEL_CONTAINER_RELEASE_BRANCH])
+
+    subprocess.check_call(["git", "branch", "-d", BAZEL_CONTAINER_RELEASE_BRANCH])
+
+    # create PR (add alex1545 as reviewer) using the installed hub tool
 
 
 
