@@ -79,8 +79,24 @@ import os
 import shlex
 import subprocess
 import sys
+from distutils.version import StrictVersion
 
-LATEST_BAZEL_VERSION = "0.17.1"
+GIT_ROOT = subprocess.check_output(["git", "rev-parse",
+                                    "--show-toplevel"]).strip()
+BAZEL_SHA_MAP_FILE = os.path.join(GIT_ROOT, "container/common/bazel/version.bzl")
+
+def get_curr_bazel_version():
+  """Return the current Bazel version (used for our containers)"""
+
+  bazel_version_sha_map = imp.load_source("version", BAZEL_SHA_MAP_FILE)
+
+  bazel_versions = bazel_version_sha_map.BAZEL_VERSION_SHA256S.keys()
+  bazel_versions.sort(key=StrictVersion)
+  curr_version = bazel_versions[-1]
+
+  return curr_version
+
+LATEST_BAZEL_VERSION = get_curr_bazel_version()
 
 SUPPORTED_TYPES = [
     "rbe-debian8", "rbe-debian9", "rbe-ubuntu16_04", "ubuntu16_04-bazel",
