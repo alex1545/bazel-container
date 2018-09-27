@@ -17,6 +17,7 @@ BAZEL_GCS_PATH = "gs://bazel/"
 
 BAZEL_CONTAINER_RELEASE_BRANCH = "bazel-container-release"
 
+
 def main():
   # print versions_and_shas.CURR_VERSIONS_AND_SHAS["bazel"]["version"]
   # print versions_and_shas.CURR_VERSIONS_AND_SHAS["bazel"]["sha"]
@@ -42,7 +43,7 @@ def main():
     print("Bazel installer sha: " + curr_bazel_sha + " -> " + latest_bazel_sha)
 
     # create the right branch locally first
-    subprocess.check_call(["git", "checkout", "-b", BAZEL_CONTAINER_RELEASE_BRANCH])
+    subprocess.check_call(["git", "checkout", "-b", BAZEL_CONTAINER_RELEASE_BRANCH], cwd=GIT_ROOT)
 
     # make code changes in container/common/bazel/version.bzl (add new version to sha mapping)
     # the code change relies on the line number where to insert code
@@ -50,20 +51,19 @@ def main():
     insert_line_to_file(GIT_ROOT + "/container/common/bazel/version.bzl", latest_bazel_version_to_sha_mapping, -1)
 
     # push changes to designated branch on GitHub (using local credentials)
-    subprocess.check_call(["git", "add", GIT_ROOT + "/container/common/bazel/version.bzl"])
+    subprocess.check_call(["git", "add", GIT_ROOT + "/container/common/bazel/version.bzl"], cwd=GIT_ROOT)
 
     commit_msg = "Bazel version update. Version: " + curr_bazel_version + " -> " + latest_bazel_version + "; Installer sha256: " + curr_bazel_sha + " -> " + latest_bazel_sha
-    subprocess.check_call(["git", "commit", "-m", commit_msg])
+    subprocess.check_call(["git", "commit", "-m", commit_msg], cwd=GIT_ROOT)
 
-    subprocess.check_call(["git", "push", "origin", BAZEL_CONTAINER_RELEASE_BRANCH])
+    subprocess.check_call(["git", "push", "origin", BAZEL_CONTAINER_RELEASE_BRANCH], cwd=GIT_ROOT)
 
-    subprocess.check_call(["git", "branch", "-d", BAZEL_CONTAINER_RELEASE_BRANCH])
+    subprocess.check_call(["git", "checkout", "master"], cwd=GIT_ROOT)
+    subprocess.check_call(["git", "branch", "-d", BAZEL_CONTAINER_RELEASE_BRANCH], cwd=GIT_ROOT)
 
     # create PR (add alex1545 as reviewer) using the installed hub tool
 
 
-
-  # if different, make code changes and push to GitHub (Louhi will continue from there)
 
   # when finished, if release didn't happen for some reason, need to revert code changes
   # (maybe can close PR to undo this and then pull)
