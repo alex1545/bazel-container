@@ -106,6 +106,9 @@ def insert_line_to_file(file_path, line_text, line_num):
   file.close()
 
 def push_changes_to_github(commit_msg):
+  # assuming we are on master and it's up to date (maybe need to force this)
+
+
   # create the right branch locally first
   subprocess.check_call(["git", "checkout", "-b", BAZEL_CONTAINER_RELEASE_BRANCH], cwd=GIT_ROOT)
 
@@ -121,6 +124,8 @@ def push_changes_to_github(commit_msg):
 
   # create PR (add alex1545 as reviewer) using the installed hub tool
 
+
+  # maybe we want to delete this branch when merged with master (maybe manually)
 
 
 if __name__ == "__main__":
