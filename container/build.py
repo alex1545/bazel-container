@@ -282,31 +282,40 @@ def cloud_build(project,
   if not bucket:
     # Gets the yaml relative to the bazel-toolchains root, regardless of what directory it was called from
     # MUST BE UPDATED IF THE YAML FILE IS MOVED
-    config_file = "{}/container/cloudbuild_no_bucket.yaml".format(
+    config_file = "{}/container/cloudbuild_no_bucket_bazel.yaml".format(
         bazel_toolchains_base_dir)
     extra_substitution = ""
 
   async_arg = ""
   if async_:
     async_arg = "--async"
+  # subprocess.check_call(
+  #     shlex.split(
+  #         ("gcloud builds submit . "
+  #          "--config={CONFIG} "
+  #          "--substitutions _PROJECT={PROJECT},_CONTAINER={CONTAINER},"
+  #          "_BAZEL_VERSION={BAZEL_VERSION},"
+  #          "_TAG={TAG},_PACKAGE={PACKAGE},_TARGET={TARGET}{EXTRA_SUBSTITUTION} "
+  #          "--machine-type=n1-highcpu-32 "
+  #          "{ASYNC}").format(
+  #              CONFIG=config_file,
+  #              PROJECT=project,
+  #              CONTAINER=container,
+  #              TAG=tag,
+  #              PACKAGE=package,
+  #              TARGET=target,
+  #              EXTRA_SUBSTITUTION=extra_substitution,
+  #              ASYNC=async_arg,
+  #              BAZEL_VERSION=bazel_version)))
+
   subprocess.check_call(
       shlex.split(
           ("gcloud builds submit . "
-           "--config={CONFIG} "
-           "--substitutions _PROJECT={PROJECT},_CONTAINER={CONTAINER},"
-           "_BAZEL_VERSION={BAZEL_VERSION},"
-           "_TAG={TAG},_PACKAGE={PACKAGE},_TARGET={TARGET}{EXTRA_SUBSTITUTION} "
-           "--machine-type=n1-highcpu-32 "
-           "{ASYNC}").format(
+            "--config={CONFIG} "
+            "--machine-type=n1-highcpu-32 "
+            "{ASYNC}").format(
                CONFIG=config_file,
-               PROJECT=project,
-               CONTAINER=container,
-               TAG=tag,
-               PACKAGE=package,
-               TARGET=target,
-               EXTRA_SUBSTITUTION=extra_substitution,
-               ASYNC=async_arg,
-               BAZEL_VERSION=bazel_version)))
+               ASYNC=async_arg)))
 
 
 def parse_arguments():
